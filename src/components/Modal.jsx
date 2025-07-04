@@ -16,7 +16,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: #F9A42E;
   border-radius: 20px;
   padding: 30px;
   width: 90%;
@@ -33,8 +33,8 @@ const ModalCloseButton = styled.button`
   right: 20px;
   background: none;
   border: none;
-  font-size: 24px;
-  color: #999;
+  font-size: 40px;
+  color: #000000;
   cursor: pointer;
   padding: 5px;
   line-height: 1;
@@ -63,14 +63,13 @@ const ModalUserIcon = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 50%;
   }
 `;
 
 const ModalUserName = styled.div`
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: #ffffff;
 `;
 
 const ModalMessage = styled.div`
@@ -79,33 +78,26 @@ const ModalMessage = styled.div`
   line-height: 1.5;
   margin-bottom: 25px;
   padding: 15px;
-  background: #f8f9fa;
+  background:rgb(245, 186, 118);
   border-radius: 10px;
 `;
 
+const ModalButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+`;
+
 const ModalButton = styled.button`
-  width: 100%;
-  border: none;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  background: ${props => props.variant === 'success' ? '#28a745' : '#C57658'};
-  color: white;
-  
-  &:hover {
-    background: ${props => props.variant === 'success' ? '#218838' : '#e6850a'};
-    transform: ${props => props.disabled ? 'none' : 'translateY(-1px)'};
-  }
-  
-  &:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-    transform: none;
-  }
+     background: #C57658;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    float: right;
 `;
 
 const Modal = ({
@@ -134,13 +126,15 @@ const Modal = ({
         <ModalMessage>
           {message}
         </ModalMessage>
-        <ModalButton 
-          onClick={onButtonClick}
-          disabled={buttonDisabled}
-          variant={buttonVariant}
-        >
-          {buttonText}
-        </ModalButton>
+        <ModalButtonContainer>
+          <ModalButton 
+            onClick={onButtonClick}
+            disabled={buttonDisabled}
+            variant={buttonVariant}
+          >
+            {buttonText}
+          </ModalButton>
+        </ModalButtonContainer>
       </ModalContent>
     </ModalOverlay>
   );
