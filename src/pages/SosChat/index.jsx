@@ -176,12 +176,7 @@ const KakaoButton = styled.button`
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(254, 229, 0, 0.4);
   
-  &:hover {
-    background: #F9DD00;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(254, 229, 0, 0.6);
-  }
-  
+
   &:active {
     transform: translateY(0);
   }

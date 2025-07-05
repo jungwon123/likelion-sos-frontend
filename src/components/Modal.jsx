@@ -82,6 +82,55 @@ const ModalMessage = styled.div`
   border-radius: 10px;
 `;
 
+// 성공 모달용 스타일
+const SuccessModalContent = styled.div`
+  background: #F9A42E;
+  border-radius: 20px;
+  padding: 30px;
+  width: 90%;
+  max-width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+`;
+
+const SuccessIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+`;
+
+const SuccessTitle = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 15px;
+  line-height: 1.4;
+  white-space: pre-line;
+`;
+
+const SuccessSubtitle = styled.div`
+  font-size: 14px;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+  white-space: pre-line;
+`;
+
 const ModalButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -109,10 +158,37 @@ const Modal = ({
   buttonText,
   onButtonClick,
   buttonDisabled = false,
-  buttonVariant = 'primary'
+  buttonVariant = 'primary',
+  // 성공 모달용 props
+  isSuccessModal = false,
+  successTitle,
+  successSubtitle,
+  helperNickname,
+  rewardPoints = 10
 }) => {
   if (!isOpen) return null;
 
+  // 성공 모달 렌더링
+  if (isSuccessModal) {
+    return (
+      <ModalOverlay onClick={onClose}>
+        <SuccessModalContent onClick={(e) => e.stopPropagation()}>
+          <ModalCloseButton onClick={onClose}>×</ModalCloseButton>
+          <SuccessIcon>
+            <img src={require(`../public/images/cele.png`)} alt="Success" />
+          </SuccessIcon>
+          <SuccessTitle>
+            {successTitle || "SOS 완료 등록 및\n도움 처리가 완료되었습니다!"}
+          </SuccessTitle>
+          <SuccessSubtitle>
+            {successSubtitle || `${helperNickname}님에게\nSOS 포인트 ${rewardPoints}점을 보냈습니다!`}
+          </SuccessSubtitle>
+        </SuccessModalContent>
+      </ModalOverlay>
+    );
+  }
+
+  // 기본 모달 렌더링
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>

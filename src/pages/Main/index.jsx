@@ -362,10 +362,10 @@ const MainPage = () => {
       </MainContent>
 
       <BottomButtons>
-        <BottomButton onClick={() => navigate('/sos-request')}>
+        <BottomButton onClick={() => navigate('/sosrequest')}>
           + SOS 요청하기
         </BottomButton>
-        <BottomButton className="secondary" onClick={() => navigate('/my-page')}>
+        <BottomButton className="secondary" onClick={() => navigate('/mypage')}>
           마이페이지
         </BottomButton>
       </BottomButtons>
@@ -385,4 +385,4 @@ const MainPage = () => {
   );
 };
 
-export default MainPage; 
+export default MainPage;

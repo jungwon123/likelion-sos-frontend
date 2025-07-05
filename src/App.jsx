@@ -5,10 +5,14 @@ import styled, { createGlobalStyle } from 'styled-components';
 // Pages
 import SplashPage from './pages/Splash/index.jsx';
 import AuthPage from './pages/Auth/index.jsx';
+import ForgotPasswordPage from './pages/Auth/ForgotPassword.jsx';
+import EmailVerification from './pages/Auth/EmailVerification.jsx';
+import PasswordReset from './pages/Auth/PasswordReset.jsx';
 import MainPage from './pages/Main/index.jsx';
 import MyPage from './pages/MyPage/index.jsx';
 import SosRequestPage from './pages/SosRequest/index.jsx';
 import SosChatPage from './pages/SosChat/index.jsx';
+import SosCompletePage from './pages/SosComplete/index.jsx';
 
 // Global styles
 const GlobalStyle = createGlobalStyle`
@@ -72,6 +76,15 @@ function App() {
             {/* 로그인/회원가입 페이지 */}
             <Route path="/auth" element={<AuthPage />} />
             
+            {/* 비밀번호 찾기 페이지 */}
+            <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+            
+            {/* 이메일 인증 페이지 */}
+            <Route path="/emailverification" element={<EmailVerification />} />
+            
+            {/* 비밀번호 재설정 페이지 */}
+            <Route path="/passwordreset" element={<PasswordReset />} />
+            
             {/* 메인 페이지 */}
             <Route path="/main" element={<MainPage />} />
             
@@ -83,6 +96,9 @@ function App() {
             
             {/* SOS 채팅 페이지 */}
             <Route path="/chat" element={<SosChatPage />} />
+            
+            {/* SOS 완료 처리 페이지 */}
+            <Route path="/sos-complete" element={<SosCompletePage />} />
             
             {/* 404 페이지 - 메인으로 리다이렉트 */}
             <Route path="*" element={<Navigate to="/main" replace />} />

@@ -237,6 +237,9 @@ const StatusButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: background 0.3s ease;
+  width: 80px;
+  min-width: 80px;
+  text-align: center;
   
   &:hover {
     background: #e6850a;
@@ -396,19 +399,80 @@ const MyPage = () => {
     }
   };
 
-  // 컴포넌트 마운트 시 SOS 내역 로드
+  // 더미데이터 설정
   useEffect(() => {
-    fetchSosHistory();
+    // SOS 내역 더미데이터
+    const dummySosHistory = [
+      {
+        id: 1,
+        title: "충전기 빌려줄사람 구합니다",
+        building: "학산도서관 1층",
+        requesterNickname: "익명",
+        requestStatus: "진행중",
+        createdAt: "50분 전"
+      },
+      {
+        id: 2,
+        title: "노트북 충전기 빌려줄사람 구합니다",
+        building: "8호호관 2층",
+        requesterNickname: "익명",
+        requestStatus: "완료됨",
+        createdAt: "2일 전"
+      },
+      {
+        id: 3,
+        title: "충전기 빌려줄사람 구합니다",
+        building: "정보기술대대 3층",
+        requesterNickname: "익명",
+        requestStatus: "진행중",
+        createdAt: "1시간 전"
+      },
+      {
+        id: 4,
+        title: "충전기 빌려줄사람 구합니다",
+        building: "학산산도서관 2층",
+        requesterNickname: "익명",
+        requestStatus: "완료됨",
+        createdAt: "3일 전"
+      }
+    ];
+
+    // 도움 내역 더미데이터
+    const dummyHelpHistory = [
+      {
+        id: 1,
+        title: "학생회관에서 우산 빌려드렸어요",
+        building: "학생회관 1층",
+        requesterNickname: "도움받은학생",
+        requestStatus: "완료됨",
+        createdAt: "1일 전"
+      },
+      {
+        id: 2,
+        title: "도서관에서 노트북 충전기 빌려드렸습니다",
+        building: "중앙도서관 3층",
+        requesterNickname: "익명학생",
+        requestStatus: "완료됨",
+        createdAt: "4일 전"
+      },
+      {
+        id: 3,
+        title: "공학관에서 계산기 빌려드렸어요",
+        building: "공학관 1층",
+        requesterNickname: "공대생",
+        requestStatus: "완료됨",
+        createdAt: "1주일 전"
+      }
+    ];
+
+    setSosHistory(dummySosHistory);
+    setHelpHistory(dummyHelpHistory);
   }, []);
 
   // 탭 변경 시 해당 데이터 로드
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    if (tab === 'sos') {
-      fetchSosHistory();
-    } else {
-      fetchHelpHistory();
-    }
+    // 더미데이터를 사용하므로 별도 API 호출 없음
   };
 
   // 상태 텍스트 변환 함수
@@ -416,7 +480,7 @@ const MyPage = () => {
     if (requestStatus === '완료됨') {
       return { text: 'SOS 완료', className: 'completed' };
     }
-    return { text: 'SOS 요청', className: '' };
+    return { text: 'SOS 중', className: '' };
   };
 
   // 카드 클릭 핸들러
@@ -434,27 +498,13 @@ const MyPage = () => {
     setSelectedRequest(null);
   };
 
-  // SOS 완료 처리 핸들러
-  const handleCompleteRequest = async () => {
-    try {
-      // 실제로는 API 호출하여 완료 처리
-      console.log('SOS 완료 처리:', selectedRequest);
-      
-      // 성공 후 상태 업데이트
-      setSosHistory(prev => 
-        prev.map(item => 
-          item.id === selectedRequest.id 
-            ? { ...item, requestStatus: '완료됨' }
-            : item
-        )
-      );
-      
-      alert('SOS 요청이 완료 처리되었습니다!');
-      handleCloseModal();
-    } catch (error) {
-      console.error('SOS 완료 처리 오류:', error);
-      alert('완료 처리 중 오류가 발생했습니다.');
+  // SOS 완료 처리 핸들러 (페이지 이동)
+  const handleCompleteRequest = () => {
+    // 진행중인 요청만 완료 처리 페이지로 이동
+    if (selectedRequest && selectedRequest.requestStatus === '진행중') {
+      navigate('/sos-complete', { state: { requestData: selectedRequest } });
     }
+    handleCloseModal();
   };
 
   const currentHistory = activeTab === 'sos' ? sosHistory : helpHistory;
@@ -543,8 +593,8 @@ const MyPage = () => {
                     <MetaInfo>
                       <img src={require('../../public/images/mappoint.png')} alt="Location" />
                       <span>{item.building}</span>
-                      <img src={require('../../public/images/clockpoint.png')} alt="Requester" />
-                      <span>{item.requesterNickname}</span>
+                      <img src={require('../../public/images/clockpoint.png')} alt="Clock" />
+                      <span>{item.createdAt}</span>
                     </MetaInfo>
                     <StatusButton className={statusInfo.className}>
                       {statusInfo.text}
@@ -564,7 +614,7 @@ const MyPage = () => {
         userName={selectedRequest?.requesterNickname || userInfo.nickname}
         userImage="user1.png"
         message={selectedRequest?.title || ''}
-        buttonText={selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : 'SOS 완료 처리'}
+        buttonText={selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : '도움완료처리'}
         onButtonClick={handleCompleteRequest}
         buttonDisabled={selectedRequest?.requestStatus === '완료됨'}
         buttonVariant="success"
