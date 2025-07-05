@@ -17,7 +17,7 @@ import {
   SubmitButton
 } from './AuthStyles.js';
 
-const Signup = ({ onGoToLogin }) => {
+const Signup = ({ onGoToLogin, onGoBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -117,7 +117,7 @@ const Signup = ({ onGoToLogin }) => {
   };
 
   const handleBack = () => {
-    navigate('/auth');
+    onGoBack();
   };
 
   return (
@@ -139,7 +139,7 @@ const Signup = ({ onGoToLogin }) => {
               <EmailInput
                 type="email"
                 name="email"
-                placeholder="jj20505@gmail.com"
+                placeholder="이메일"
                 value={formData.email}
                 onChange={handleInputChange}
                 required

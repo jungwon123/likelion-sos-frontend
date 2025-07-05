@@ -71,7 +71,7 @@ const AuthPage = () => {
 
   // 회원가입 화면
   if (currentStep === 'signup') {
-    return <Signup onGoToLogin={handleGoToLogin} />;
+    return <Signup onGoToLogin={handleGoToLogin} onGoBack={handleGoToWelcome} />;
   }
 
   // 로그인 화면
