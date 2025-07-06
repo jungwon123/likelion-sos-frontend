@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AlertModal from '../../components/AlertModal.jsx';
+import { resetPassword } from '../../services/authService.js';
 import {
   AuthContainer,
   Header,
@@ -16,6 +17,10 @@ import {
 
 const PasswordReset = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
+  
   const [formData, setFormData] = useState({
     newPassword: '',
     confirmPassword: ''
@@ -57,24 +62,35 @@ const PasswordReset = () => {
       return;
     }
 
+    if (!token || !email) {
+      setAlertMessage('비밀번호 재설정 정보가 올바르지 않습니다');
+      setShowAlertModal(true);
+      return;
+    }
+
     setIsLoading(true);
     
     try {
-      // 비밀번호 재설정 로직 시뮬레이션
-      setTimeout(() => {
-        setIsLoading(false);
-        setAlertMessage('비밀번호가 성공적으로 변경되었습니다');
+      // 비밀번호 재설정 API 호출
+      const result = await resetPassword(email, token, formData.newPassword);
+      
+      if (result.success) {
+        setAlertMessage(result.message); // "비밀번호가 성공적으로 변경되었습니다."
         setShowAlertModal(true);
         
         // 성공 후 로그인 페이지로 이동
         setTimeout(() => {
           navigate('/auth');
         }, 2000);
-      }, 1000);
+      } else {
+        setAlertMessage(result.message); // "유효하지 않은 토큰입니다." 또는 "사용자를 찾을 수 없습니다."
+        setShowAlertModal(true);
+      }
     } catch (error) {
-      setIsLoading(false);
-      setAlertMessage('비밀번호 변경에 실패했습니다');
+      setAlertMessage('비밀번호 변경 중 오류가 발생했습니다');
       setShowAlertModal(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,7 +100,7 @@ const PasswordReset = () => {
     <AuthContainer>
       <Header>
         <BackButton onClick={handleBackClick}>
-          <img src={require('../../public/images/back.png')} alt="뒤로가기" />
+          <img src={require('../../assets/images/back.png')} alt="뒤로가기" />
         </BackButton>
         <HeaderTitle>캠퍼스 SOS</HeaderTitle>
       </Header>

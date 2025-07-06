@@ -12,6 +12,12 @@ export const AuthContainer = styled(MobileContainer)`
   &.welcome {
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     padding: 40px 20px;
   }
 `;

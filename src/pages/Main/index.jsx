@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../../components/Modal.jsx';
+import { useAppState } from '../../hooks/state/useAppState.js';
+import { useUserState } from '../../hooks/state/useUserState.js';
 import {
   MainContainer,
   Header,
@@ -27,42 +29,66 @@ import {
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const [selectedLocation, setSelectedLocation] = useState('학산도서관');
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const [helpRequests] = useState([
-    {
-      id: 1,
-      userName: '옆짚 마테우스',
-      title: 'SOS : A4 용지 하나만 빌려주실 천사분을 찾습니다....',
-      description: '내일 당장 빅데이터 프로그래밍 시험인데 집에서 스폰지를 못 씻어서 삐걱거리고 빨간주스는 SOS 포인트와 마이 포인트과 시 시계트리가 부족됩니다!',
-      location: '이룸관 4층',
-      time: '5분 전',
-      category: '도움 고수'
-    },
-    {
-      id: 2,
-      userName: '인천대 차은우',
-      title: 'SOS : 도서관 3층입니다... 노트북 충전기 한 번만 빌려주세요...',
-      description: '노트북 배터리가 거의 다 되어가는데 충전기를 깜박하고 안 가져왔습니다. 30분 정도만 빌려주시면 감사하겠습니다.',
-      location: '이룸관 3층',
-      time: '10분 전',
-      category: '학우 지킴이'
-    },
-    {
-      id: 3,
-      userName: '몬스터 재윤이',
-      title: '너무 추워서 그런데 바람막이 빌려 주실 선생님 계실까요..?',
-      description: '갑자기 날씨가 너무 추워져서 얇게 입고 나왔는데 감기 걸릴 것 같습니다. 바람막이나 겉옷 하나만 빌려주실 수 있나요?',
-      location: '이룸관 2층',
-      time: '1분 전',
-      category: 'SOS 입문자'
+  // Recoil 상태 관리
+  const { 
+    currentBuilding, 
+    setCurrentBuilding, 
+    sosRequests, 
+    updateSosRequests 
+  } = useAppState();
+  const { levelInfo, isAuthenticated } = useUserState();
+
+  // 초기 데이터 설정
+  useEffect(() => {
+    if (!currentBuilding) {
+      setCurrentBuilding('학산도서관');
     }
-  ]);
+    
+    if (sosRequests.length === 0) {
+      const dummyRequests = [
+        {
+          id: 1,
+          userName: '옆짚 마테우스',
+          title: 'SOS : A4 용지 하나만 빌려주실 천사분을 찾습니다....',
+          description: '내일 당장 빅데이터 프로그래밍 시험인데 집에서 스폰지를 못 씻어서 삐걱거리고 빨간주스는 SOS 포인트와 마이 포인트과 시 시계트리가 부족됩니다!',
+          location: '이룸관 4층',
+          time: '5분 전',
+          category: '도움 고수',
+          status: 'ACTIVE'
+        },
+        {
+          id: 2,
+          userName: '인천대 차은우',
+          title: 'SOS : 도서관 3층입니다... 노트북 충전기 한 번만 빌려주세요...',
+          description: '노트북 배터리가 거의 다 되어가는데 충전기를 깜박하고 안 가져왔습니다. 30분 정도만 빌려주시면 감사하겠습니다.',
+          location: '이룸관 3층',
+          time: '10분 전',
+          category: '학우 지킴이',
+          status: 'ACTIVE'
+        },
+        {
+          id: 3,
+          userName: '몬스터 재윤이',
+          title: '너무 추워서 그런데 바람막이 빌려 주실 선생님 계실까요..?',
+          description: '갑자기 날씨가 너무 추워져서 얇게 입고 나왔는데 감기 걸릴 것 같습니다. 바람막이나 겉옷 하나만 빌려주실 수 있나요?',
+          location: '이룸관 2층',
+          time: '1분 전',
+          category: 'SOS 입문자',
+          status: 'ACTIVE'
+        }
+      ];
+      updateSosRequests(dummyRequests);
+    }
+  }, [currentBuilding, setCurrentBuilding, sosRequests.length, updateSosRequests]);
+
+  // 활성화된 요청만 필터링
+  const activeRequests = sosRequests.filter(request => request.status === 'ACTIVE');
 
   const handleHelpClick = (requestId) => {
-    const selectedRequest = helpRequests.find(req => req.id === requestId);
+    const selectedRequest = sosRequests.find(req => req.id === requestId);
     navigate('/chat', { state: { request: selectedRequest } });
   };
 
@@ -98,30 +124,30 @@ const MainPage = () => {
         <HeaderLeft>
           <Logo>캠퍼스 SOS</Logo>
           <LocationDropdown onClick={handleLocationClick}>
-            <img style={{width: '24px', height: '24px'}} src={require('../../public/images/map.png')} alt="Map Point" />
-            <span>{selectedLocation}</span>
-            <img style={{width: '24px', height: '24px'}} src={require('../../public/images/arrowdown.png')} alt="Down" />
+            <img style={{width: '24px', height: '24px'}} src={require('../../assets/images/map.png')} alt="Map Point" />
+            <span>{currentBuilding}</span>
+            <img style={{width: '24px', height: '24px'}} src={require('../../assets/images/arrowdown.png')} alt="Down" />
           </LocationDropdown>
         </HeaderLeft>
         <RefreshButton onClick={handleRefresh}>
-          <img src={require('../../public/images/retry.png')} alt="Retry" />
+          <img src={require('../../assets/images/retry.png')} alt="Retry" />
         </RefreshButton>
       </Header>
 
       <MainContent>
-        {helpRequests.map(request => (
+        {activeRequests.map(request => (
           <RequestCard key={request.id} onClick={() => handleCardClick(request)}>
             <CardHeader>
               <UserInfo>
                   <UserProfile>
                     <UserIcon>
-                      <img src={require('../../public/images/user1.png')} alt="User Icon" />
+                      <img src={require('../../assets/images/user1.png')} alt="User Icon" />
                     </UserIcon>
                     <UserName>{request.userName}</UserName>
                   </UserProfile>
                   <CategoryIcon>
                     {request.category}
-                    <img style={{width: '24px', height: '24px'}} src={require('../../public/images/reward1.png')} alt="User Icon" />
+                    <img style={{width: '24px', height: '24px'}} src={require('../../assets/images/reward1.png')} alt="User Icon" />
                   </CategoryIcon> {/* 카테고리 아이콘 추가  유저 점수에 따라 변경 */}
               </UserInfo>
             </CardHeader>
@@ -130,9 +156,9 @@ const MainPage = () => {
               <RequestTitle>{request.title}</RequestTitle>
               <RequestMeta>
                 <MetaItem>
-                  <img src={require('../../public/images/mappoint.png')} alt="Map Point" />
+                  <img src={require('../../assets/images/mappoint.png')} alt="Map Point" />
                   {request.location}
-                  <img src={require('../../public/images/clockpoint.png')} alt="Clock" />
+                  <img src={require('../../assets/images/clockpoint.png')} alt="Clock" />
                   {request.time}
                 </MetaItem>
                 <HelpButton onClick={(e) => {

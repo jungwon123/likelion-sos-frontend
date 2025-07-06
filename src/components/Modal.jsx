@@ -175,7 +175,7 @@ const Modal = ({
         <SuccessModalContent onClick={(e) => e.stopPropagation()}>
           <ModalCloseButton onClick={onClose}>×</ModalCloseButton>
           <SuccessIcon>
-            <img src={require(`../public/images/cele.png`)} alt="Success" />
+            <img src={require(`../assets/images/cele.png`)} alt="Success" />
           </SuccessIcon>
           <SuccessTitle>
             {successTitle || "SOS 완료 등록 및\n도움 처리가 완료되었습니다!"}
@@ -195,7 +195,7 @@ const Modal = ({
         <ModalCloseButton onClick={onClose}>×</ModalCloseButton>
         <ModalUserInfo>
           <ModalUserIcon>
-            <img src={require(`../public/images/${userImage}`)} alt="User Icon" />
+            <img src={require(`../assets/images/${userImage}`)} alt="User Icon" />
           </ModalUserIcon>
           <ModalUserName>{userName}</ModalUserName>
         </ModalUserInfo>

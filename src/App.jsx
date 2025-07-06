@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
+import { RecoilRoot } from 'recoil';
 
 // Pages
 import SplashPage from './pages/Splash/index.jsx';
@@ -62,7 +63,7 @@ const AppContainer = styled.div`
 
 function App() {
   return (
-    <>
+    <RecoilRoot>
       <GlobalStyle />
       <AppContainer>
         <Router>
@@ -105,7 +106,7 @@ function App() {
           </Routes>
         </Router>
       </AppContainer>
-    </>
+    </RecoilRoot>
   );
 }
 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AlertModal from '../../components/AlertModal.jsx';
 import {
   AuthContainer,
   Header,
@@ -17,9 +16,6 @@ import {
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showAlertModal, setShowAlertModal] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
   const navigate = useNavigate();
 
   const handleBackClick = () => {
@@ -34,27 +30,24 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
     
     if (!email) {
-      setAlertMessage('이메일을 입력해주세요.');
-      setShowAlertModal(true);
+      alert('이메일을 입력해주세요.');
       return;
     }
 
     if (!email.includes('@')) {
-      setAlertMessage('올바른 이메일 형식을 입력해주세요.');
-      setShowAlertModal(true);
+      alert('올바른 이메일 형식을 입력해주세요.');
       return;
     }
 
-    setIsLoading(true);
+    // 이메일 인증 페이지로 이동 (API 호출은 이메일 인증 페이지에서)
     navigate(`/emailverification?from=forgot&email=${encodeURIComponent(email)}`);
-
   };
 
   return (
     <AuthContainer>
       <Header>
         <BackButton onClick={handleBackClick}>
-          <img src={require('../../public/images/back.png')} alt="뒤로가기" />
+          <img src={require('../../assets/images/back.png')} alt="뒤로가기" />
         </BackButton>
         <HeaderTitle>캠퍼스 SOS</HeaderTitle>
       </Header>
@@ -79,8 +72,8 @@ const ForgotPasswordPage = () => {
             />
           </InputGroup>
           
-          <SubmitButton type="submit" disabled={isLoading}>
-            {isLoading ? '이메일 발송 중...' : '비밀번호 찾기'}
+          <SubmitButton type="submit">
+            비밀번호 찾기
           </SubmitButton>
         </form>
       </FormContainer>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AlertModal from '../../components/AlertModal.jsx';
+import { useAuthForm } from '../../hooks/Auth/useAuthForm.js';
 import {
   AuthContainer,
   Header,
@@ -16,32 +17,23 @@ import {
 } from './AuthStyles.js';
 
 const Login = ({ onGoBack }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showAlertModal, setShowAlertModal] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+  const {
+    formData,
+    isLoading,
+    showAlertModal,
+    alertMessage,
+    handleInputChange,
+    hideAlert,
+    login
+  } = useAuthForm({
     email: '',
     password: ''
   });
-  const navigate = useNavigate();
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // 실제 로그인 로직
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/main');
-    }, 2000);
+    await login();
   };
 
   const handleBack = () => {
@@ -56,7 +48,7 @@ const Login = ({ onGoBack }) => {
     <AuthContainer>
       <Header>
         <BackButton onClick={handleBack}>
-          <img src={require('../../public/images/back.png')} alt="뒤로가기" />
+          <img src={require('../../assets/images/back.png')} alt="뒤로가기" />
         </BackButton>
         <HeaderTitle>캠퍼스 SOS</HeaderTitle>
       </Header>
@@ -104,7 +96,7 @@ const Login = ({ onGoBack }) => {
         message={alertMessage}
         iconSrc={null}
         iconAlt={null}
-        onClose={() => setShowAlertModal(false)}
+        onClose={hideAlert}
       />
     </AuthContainer>
   );

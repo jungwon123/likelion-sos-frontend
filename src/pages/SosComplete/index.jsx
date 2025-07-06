@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Modal from '../../components/Modal.jsx';
+import { useUserState } from '../../hooks/state/useUserState.js';
 import {
   SosCompleteContainer,
   Header,
@@ -22,6 +23,9 @@ const SosComplete = () => {
   const [helpDetails, setHelpDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  
+  // Recoil 상태 관리
+  const { addSosPoint, sosPoint } = useUserState();
 
   // MyPage에서 전달받은 SOS 요청 정보
   const requestData = location.state?.requestData || {};
@@ -54,6 +58,10 @@ const SosComplete = () => {
         requestData
       });
 
+      // SOS 완료 시 포인트 증가 (10점 추가)
+      const rewardPoints = 10;
+      addSosPoint(rewardPoints);
+
       // 성공 처리 - 모달 열기
       setIsSuccessModalOpen(true);
     } catch (error) {
@@ -68,14 +76,13 @@ const SosComplete = () => {
     <SosCompleteContainer>
       <Header>
         <BackButton onClick={handleBackClick}>
-          <img src={require('../../public/images/back.png')} alt="뒤로가기" />
+          <img src={require('../../assets/images/back.png')} alt="뒤로가기" />
         </BackButton>
         <HeaderTitle>SOS 완료 처리</HeaderTitle>
       </Header>
 
       <ContentContainer>
         <WelcomeMessage>
-          지금 예갑니다!<br />
           도움을 잘 받으셨나요?<br />
           감사한 마음을 작점 표현해보세요~!!
         </WelcomeMessage>

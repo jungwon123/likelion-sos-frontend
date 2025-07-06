@@ -44,7 +44,7 @@ const AuthPage = () => {
     return (
       <AuthContainer className="welcome">
         <WelcomeContainer>
-          <AppIcon src={require('../../public/images/logo.png')} alt="App Icon" />
+          <AppIcon src={require('../../assets/images/logo.png')} alt="App Icon" />
           <AppTitle>실시간 캠퍼스, 실시간 도움 요청 서비스</AppTitle>
           <AppSubtitle>
             같은 학교 학생들이 도움이 필요할 때<br/>

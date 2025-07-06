@@ -44,13 +44,13 @@ const SosChatPage = () => {
     <ChatContainer>
       <Header>
         <BackButton onClick={handleBackClick}>
-          <img src={require('../../public/images/back.png')} alt="뒤로가기" />
+          <img src={require('../../assets/images/back.png')} alt="뒤로가기" />
         </BackButton>
       </Header>
 
       <MainContent>
         <HeaderTitle>
-          <img src={require('../../public/images/bell.png')} alt="SOS" />
+          <img src={require('../../assets/images/bell.png')} alt="SOS" />
           SOS 요청
         </HeaderTitle>
 
@@ -59,14 +59,14 @@ const SosChatPage = () => {
             <RequestInfo>
               <RequestTitle>
                 <LogoContainer>
-                   <img src={require('../../public/images/user1.png')} alt="userprofile" />
+                   <img src={require('../../assets/images/user1.png')} alt="userprofile" />
                 </LogoContainer>
                 <span>{request.title}</span>
               </RequestTitle>
               <RequestMeta>
-                <img src={require('../../public/images/mappoint.png')} alt="Map Point" />
+                <img src={require('../../assets/images/mappoint.png')} alt="Map Point" />
                 <span> {request.location}</span>
-                <img src={require('../../public/images/clockpoint.png')} alt="Clock" />
+                <img src={require('../../assets/images/clockpoint.png')} alt="Clock" />
                 <span>{request.time}</span>
                 요청자: {request.userName}
               </RequestMeta>

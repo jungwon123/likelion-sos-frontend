@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MobileFlex } from '../../components/MobileLayout.jsx';
+import { useTimer } from '../../hooks/Splash/useTimer.js';
 import {
   SplashContainer,
   BrandContainer,
@@ -10,25 +11,16 @@ import {
 } from './SplashStyles.js';
 
 const SplashPage = () => {
-  const [isExiting, setIsExiting] = useState(false);
   const navigate = useNavigate();
+  
+  const timerConfig = useMemo(() => [
+    { key: 'exit', delay: 2200 },
+    { key: 'navigate', delay: 3000, callback: () => navigate('/auth') }
+  ], [navigate]);
+  
+  const { getState } = useTimer(timerConfig);
 
-  useEffect(() => {
-    // 2.2초 후 exit 애니메이션 시작
-    const exitTimer = setTimeout(() => {
-      setIsExiting(true);
-    }, 2200);
-
-    // 3초 후 로그인 페이지로 이동
-    const navigateTimer = setTimeout(() => {
-      navigate('/auth');
-    }, 3000);
-
-    return () => {
-      clearTimeout(exitTimer);
-      clearTimeout(navigateTimer);
-    };
-  }, [navigate]);
+  const isExiting = getState('exit');
 
   return (
     <SplashContainer isExiting={isExiting}>
