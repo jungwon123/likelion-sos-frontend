@@ -37,9 +37,42 @@ export const LocationDropdown = styled.div`
   gap: 6px;
   font-size: 14px;
   cursor: pointer;
+  position: relative;
   
   &:hover {
     opacity: 0.8;
+  }
+`;
+
+export const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #3A3535;
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  min-width: 200px;
+`;
+
+export const DropdownItem = styled.div`
+  padding: 10px 12px;
+  border-bottom: 1px solid #555;
+  cursor: pointer;
+  color: white;
+  background: ${props => props.active ? '#4A4545' : '#3A3535'};
+  font-size: 13px;
+  
+  &:hover {
+    background: #4A4545;
+  }
+  
+  &:last-child {
+    border-bottom: none;
   }
 `;
 

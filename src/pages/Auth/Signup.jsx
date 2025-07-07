@@ -43,31 +43,22 @@ const Signup = ({ onGoToLogin, onGoBack }) => {
   const {
     isEmailVerified,
     isVerifying,
+    verifiedEmail,
     startEmailVerification,
     clearEmailVerificationData,
     resetEmailVerification
   } = useEmailVerification();
 
-  // 페이지 로드 시 localStorage 확인
+  // 이메일 인증 완료 시 폼에 이메일 자동 입력
   useEffect(() => {
-    const emailVerified = localStorage.getItem('emailVerified');
-    const verifiedEmail = localStorage.getItem('verifiedEmail');
-    
-    if (emailVerified === 'true') {
+    if (isEmailVerified && verifiedEmail && !formData.email) {
+      setFormData(prev => ({ ...prev, email: verifiedEmail }));
       showAlert('이메일 인증이 완료되었습니다!\n이제 회원가입을 완료해주세요.');
-      
-      // 인증된 이메일 정보를 formData에 설정
-      if (verifiedEmail) {
-        setFormData(prev => ({ ...prev, email: verifiedEmail }));
-      }
-      
-      // localStorage 정리
-      clearEmailVerificationData();
     }
-  }, [showAlert, setFormData, clearEmailVerificationData]);
+  }, [isEmailVerified, verifiedEmail, formData.email, setFormData, showAlert]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
     
     // 이메일이 변경되면 인증 상태 초기화
     if (name === 'email') {
@@ -97,7 +88,12 @@ const Signup = ({ onGoToLogin, onGoBack }) => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    await signup(isEmailVerified, onGoToLogin);
+    const success = await signup(isEmailVerified, onGoToLogin);
+    
+    // 회원가입 성공 시 인증 데이터 정리
+    if (success) {
+      clearEmailVerificationData();
+    }
   };
 
   const handleBack = () => {

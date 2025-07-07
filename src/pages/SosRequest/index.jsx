@@ -31,7 +31,9 @@ const SosRequestPage = () => {
     modalMessage,
     updateField,
     submitForm,
-    setShowModal
+    setShowModal,
+    editMode,
+    requestData
   } = useSosForm();
   const { isOpen: isDropdownOpen, toggle: toggleDropdown, close: closeDropdown } = useDropdown();
 
@@ -56,7 +58,7 @@ const SosRequestPage = () => {
         </BackButton>
         <HeaderTitle>
           <img style={{width: '40px', height: '40px'}} src={require('../../assets/images/request.png')} alt="request" />
-          SOS 요청하기
+          {editMode ? 'SOS 수정하기' : 'SOS 요청하기'}
         </HeaderTitle>
       </Header>
 
@@ -119,7 +121,7 @@ const SosRequestPage = () => {
           onClick={handleSubmit}
           disabled={isSubmitting}
         >
-          {isSubmitting ? '등록 중...' : 'SOS 등록'}
+          {isSubmitting ? (editMode ? '수정 중...' : '등록 중...') : (editMode ? 'SOS 수정' : 'SOS 등록')}
         </SubmitButton>
       </FormContainer>
 

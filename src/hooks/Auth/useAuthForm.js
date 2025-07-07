@@ -83,18 +83,19 @@ export const useAuthForm = (initialData = {}) => {
   const signup = async (isEmailVerified, onSuccess) => {
     if (!isEmailVerified) {
       showAlert('이메일 인증을 완료해주세요');
-      return;
+      return false;
     }
     
     if (formData.password !== formData.confirmPassword) {
       showAlert('비밀번호가 일치하지 않습니다');
-      return;
+      return false;
     }
     
     setIsLoading(true);
     try {
-      // 회원가입 완료 API 호출
+      // 회원가입 완료 API 호출 (인증된 이메일 정보 포함)
       const result = await completeRegistration({
+        email: formData.email, // 인증된 이메일 정보 포함
         password: formData.password,
         nickname: formData.nickname,
       });
@@ -106,11 +107,15 @@ export const useAuthForm = (initialData = {}) => {
           if (onSuccess) onSuccess();
           setFormData({ ...formData, password: '', confirmPassword: '' });
         }, 2000);
+        
+        return true; // 성공 반환
       } else {
         showAlert(result.message); // "이메일 인증이 필요합니다."
+        return false; // 실패 반환
       }
     } catch (error) {
       showAlert('회원가입 중 오류가 발생했습니다.');
+      return false; // 에러 시 실패 반환
     } finally {
       setIsLoading(false);
     }

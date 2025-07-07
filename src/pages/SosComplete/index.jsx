@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Modal from '../../components/Modal.jsx';
 import { useUserState } from '../../hooks/state/useUserState.js';
+import { completeSosRequest } from '../../services/api.js';
 import {
   SosCompleteContainer,
   Header,
@@ -23,6 +24,7 @@ const SosComplete = () => {
   const [helpDetails, setHelpDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   
   // Recoil 상태 관리
   const { addSosPoint, sosPoint } = useUserState();
@@ -43,30 +45,48 @@ const SosComplete = () => {
     e.preventDefault();
     
     if (!helperNickname.trim()) {
-      alert('도움준 사람의 닉네임을 입력해주세요.');
+      setErrorMessage('도움준 사람의 닉네임을 입력해주세요.');
       return;
     }
 
     setIsSubmitting(true);
+    setErrorMessage('');
 
     try {
-      // 실제로는 API 호출하여 완료 처리
-      console.log('SOS 완료 처리:', {
-        requestId: requestData.id,
-        helperNickname: helperNickname.trim(),
-        helpDetails: helpDetails.trim(),
-        requestData
-      });
+      // 실제 API 호출하여 완료 처리
+      const completeData = {
+        helperNickname: helperNickname.trim()
+      };
 
-      // SOS 완료 시 포인트 증가 (10점 추가)
-      const rewardPoints = 10;
-      addSosPoint(rewardPoints);
+      console.log('SOS 완료 처리 요청:', completeData);
+      
+      const response = await completeSosRequest(completeData);
+      
+      if (response.status === 'success') {
+        console.log('SOS 완료 처리 성공:', response);
+        
+        // SOS 완료 시 포인트 증가 (10점 추가)
+        const rewardPoints = 10;
+        addSosPoint(rewardPoints);
 
-      // 성공 처리 - 모달 열기
-      setIsSuccessModalOpen(true);
+        // 성공 처리 - 모달 열기
+        setIsSuccessModalOpen(true);
+      } else {
+        setErrorMessage(response.message || '완료 처리에 실패했습니다.');
+      }
     } catch (error) {
       console.error('SOS 완료 처리 오류:', error);
-      alert('완료 처리 중 오류가 발생했습니다.');
+      
+      // 에러 상태에 따른 메시지 처리
+      if (error.response?.status === 401) {
+        setErrorMessage('로그인이 필요합니다.');
+      } else if (error.response?.status === 403) {
+        setErrorMessage('본인이 작성한 요청만 완료할 수 있습니다.');
+      } else if (error.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage('완료 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -108,6 +128,22 @@ const SosComplete = () => {
                 placeholder="어떤 SOS 상황에서 무슨 도움을 받았는지 적어주세요."
               />
             </div>
+
+            {/* 에러 메시지 표시 */}
+            {errorMessage && (
+              <div style={{ 
+                color: '#ff4444', 
+                fontSize: '14px', 
+                textAlign: 'center',
+                margin: '10px 0',
+                padding: '10px',
+                backgroundColor: '#fff0f0',
+                borderRadius: '8px',
+                border: '1px solid #ffcccc'
+              }}>
+                {errorMessage}
+              </div>
+            )}
 
             <SubmitButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? '처리 중...' : 'SOS 완료 등록'}

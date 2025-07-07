@@ -35,15 +35,51 @@ export const verifyEmail = async (token) => {
 // 회원가입 완료 (정보 입력)
 export const completeRegistration = async (userData) => {
   try {
-    const response = await apiClient.post('/api/complete-register', userData);
+    // 인증된 이메일 정보를 함께 전송
+    const requestData = {
+      ...userData,
+      email: userData.email // 인증된 이메일 정보 포함
+    };
+    
+    console.log('🚀 회원가입 완료 요청 데이터:', requestData);
+    console.log('📧 localStorage 인증 정보:', {
+      emailVerified: localStorage.getItem('emailVerified'),
+      verifiedEmail: localStorage.getItem('verifiedEmail')
+    });
+    
+    const response = await apiClient.post('/api/complete-register', requestData);
+    console.log('✅ 회원가입 완료 응답:', response);
+    
     return {
       success: true,
       message: response.data, // "회원가입 완료!"
     };
   } catch (error) {
+    console.error('❌ 회원가입 완료 실패:', error);
+    console.error('🔍 에러 상세 정보:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    
+    // 상세한 에러 메시지 처리
+    let errorMessage = '회원가입 중 오류가 발생했습니다.';
+    
+    if (error.response?.status === 400) {
+      errorMessage = error.response?.data?.message || error.response?.data || '잘못된 요청입니다.';
+    } else if (error.response?.status === 401) {
+      errorMessage = '이메일 인증이 필요합니다.';
+    } else if (error.response?.status === 409) {
+      errorMessage = '이미 가입된 이메일입니다.';
+    } else if (error.response?.data) {
+      errorMessage = typeof error.response.data === 'string' 
+        ? error.response.data 
+        : error.response.data.message || '서버 오류가 발생했습니다.';
+    }
+    
     return {
       success: false,
-      message: error.response?.data || '이메일 인증이 필요합니다.',
+      message: errorMessage,
     };
   }
 };
@@ -129,10 +165,10 @@ export const resetPassword = async (email, token, newPassword) => {
       newPassword,
     });
     
-    if (response.data.status === 'success') {
+    if (response.data === '비밀번호가 성공적으로 변경되었습니다.') {
       return {
         success: true,
-        message: response.data.message, // "비밀번호가 성공적으로 변경되었습니다."
+        message: response.data, // "비밀번호가 성공적으로 변경되었습니다."
       };
     } else {
       return {

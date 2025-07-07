@@ -4,20 +4,41 @@ import { useNavigate } from 'react-router-dom';
 export const useEmailVerification = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
   const navigate = useNavigate();
 
-  // localStorage에서 이메일 인증 상태 확인
+  // localStorage에서 이메일 인증 상태 확인 및 감지
   useEffect(() => {
-    const emailVerified = localStorage.getItem('emailVerified');
-    const verifiedEmail = localStorage.getItem('verifiedEmail');
+    const checkEmailVerificationStatus = () => {
+      const emailVerified = localStorage.getItem('emailVerified');
+      const storedEmail = localStorage.getItem('verifiedEmail');
+      
+      if (emailVerified === 'true') {
+        setIsEmailVerified(true);
+        if (storedEmail) {
+          setVerifiedEmail(storedEmail);
+        }
+      } else {
+        setIsEmailVerified(false);
+        setVerifiedEmail('');
+      }
+    };
+
+    // 초기 확인
+    checkEmailVerificationStatus();
+
+    // localStorage 변화 감지
+    const handleStorageChange = (e) => {
+      if (e.key === 'emailVerified' || e.key === 'verifiedEmail') {
+        checkEmailVerificationStatus();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
     
-    if (emailVerified === 'true') {
-      setIsEmailVerified(true);
-    }
-    
-    // cleanup 함수 명시적으로 반환
+    // cleanup 함수
     return () => {
-      // cleanup 로직이 필요한 경우 여기에 추가
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -34,10 +55,12 @@ export const useEmailVerification = () => {
     localStorage.setItem('emailVerified', 'true');
     localStorage.setItem('verifiedEmail', email);
     setIsEmailVerified(true);
+    setVerifiedEmail(email);
   };
 
   const resetEmailVerification = () => {
     setIsEmailVerified(false);
+    setVerifiedEmail('');
     localStorage.removeItem('emailVerified');
     localStorage.removeItem('verifiedEmail');
   };
@@ -45,11 +68,14 @@ export const useEmailVerification = () => {
   const clearEmailVerificationData = () => {
     localStorage.removeItem('emailVerified');
     localStorage.removeItem('verifiedEmail');
+    setIsEmailVerified(false);
+    setVerifiedEmail('');
   };
 
   return {
     isEmailVerified,
     isVerifying,
+    verifiedEmail,
     setIsVerifying,
     startEmailVerification,
     completeEmailVerification,

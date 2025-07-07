@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import AlertModal from '../../components/AlertModal.jsx';
 import {
   AuthContainer,
@@ -18,14 +18,42 @@ const AuthPage = () => {
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  // URL 파라미터 확인하여 초기 단계 설정
+  // URL 파라미터 확인하여 초기 단계 설정 및 이메일 인증 정보 처리
   React.useEffect(() => {
     const step = searchParams.get('step');
+    const verified = searchParams.get('verified');
+    const email = searchParams.get('email');
+    const error = searchParams.get('error');
+    
     if (step === 'signup') {
       setCurrentStep('signup');
+      
+      // 이메일 인증 결과 처리
+      if (verified === 'true' && email) {
+        // 인증 성공 정보를 localStorage에 저장
+        localStorage.setItem('emailVerified', 'true');
+        localStorage.setItem('verifiedEmail', email);
+        setAlertMessage('이메일 인증이 완료되었습니다!\n이제 회원가입을 완료해주세요.');
+        setShowAlertModal(true);
+        
+        // URL 파라미터 정리 (깔끔한 URL로 변경)
+        navigate('/auth?step=signup', { replace: true });
+      } else if (verified === 'false') {
+        // 인증 실패 처리
+        if (error === 'invalid_token') {
+          setAlertMessage('유효하지 않은 인증 링크입니다.\n다시 시도해주세요.');
+        } else {
+          setAlertMessage('이메일 인증에 실패했습니다.\n다시 시도해주세요.');
+        }
+        setShowAlertModal(true);
+        
+        // URL 파라미터 정리
+        navigate('/auth?step=signup', { replace: true });
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const handleStart = () => {
     setCurrentStep('signup');

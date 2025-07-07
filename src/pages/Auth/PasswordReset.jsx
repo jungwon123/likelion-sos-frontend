@@ -73,11 +73,11 @@ const PasswordReset = () => {
     try {
       // 비밀번호 재설정 API 호출
       const result = await resetPassword(email, token, formData.newPassword);
-      
-      if (result.success) {
+      console.log(result.message);
+
+      if (result.message === '비밀번호가 성공적으로 변경되었습니다.') {
         setAlertMessage(result.message); // "비밀번호가 성공적으로 변경되었습니다."
         setShowAlertModal(true);
-        
         // 성공 후 로그인 페이지로 이동
         setTimeout(() => {
           navigate('/auth');
@@ -145,8 +145,8 @@ const PasswordReset = () => {
       <AlertModal 
         isOpen={showAlertModal}
         message={alertMessage}
-        iconSrc={alertMessage === '비밀번호가 성공적으로 변경되었습니다' ? 'checkcircle.png' : null}
-        iconAlt={alertMessage === '비밀번호가 성공적으로 변경되었습니다' ? 'checkcircle' : null}
+        iconSrc={alertMessage === '비밀번호가 성공적으로 변경되었습니다.' ? 'checkcircle.png' : null}
+        iconAlt={alertMessage === '비밀번호가 성공적으로 변경되었습니다.' ? 'checkcircle' : null}
         layout="horizontal"
         onClose={() => setShowAlertModal(false)}
       />

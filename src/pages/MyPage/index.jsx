@@ -4,6 +4,7 @@ import Modal from '../../components/Modal.jsx';
 import { useUserState } from '../../hooks/state/useUserState.js';
 import { useMyPageData } from '../../hooks/MyPage/useMyPageData.js';
 import { useModal } from '../../hooks/MyPage/useModal.js';
+import { useUserLevel } from '../../hooks/MyPage/useUserLevel.js';
 import {
   MyPageContainer,
   Header,
@@ -39,34 +40,34 @@ const MyPage = () => {
   const [activeTab, setActiveTab] = useState('sos');
   
   // Recoil 상태 사용
-  const { userInfo, levelInfo: currentLevelInfo, updateUserInfo } = useUserState();
+  const { userInfo, updateUserInfo } = useUserState();
   const {
+    userStatus,
     sosHistory,
     helpHistory,
     loading,
     error,
+    fetchSosHistory,
+    fetchHelpHistory,
     getStatusInfo
   } = useMyPageData();
   const { isOpen: isModalOpen, modalData: selectedRequest, openModal, closeModal } = useModal();
-  
-  // 기본값 설정 (실제로는 로그인 시 설정됨)
-  React.useEffect(() => {
-    if (!userInfo.nickname) {
-      updateUserInfo({
-    nickname: '자크 예가',
-        sosPoint: 350 // 테스트용
-      });
-    }
-  }, [userInfo.nickname, updateUserInfo]);
+
+  // API에서 받은 사용자 정보로 레벨 정보 계산
+  const currentLevelInfo = useUserLevel(userStatus?.point || 0);
 
   const handleBackClick = () => {
     navigate('/main');
   };
 
-  // 탭 변경 시 해당 데이터 로드
+  // 탭 변경 시 해당 데이터 다시 로드
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // 더미데이터를 사용하므로 별도 API 호출 없음
+    if (tab === 'sos') {
+      fetchSosHistory();
+    } else {
+      fetchHelpHistory();
+    }
   };
 
   // 카드 클릭 핸들러
@@ -85,7 +86,7 @@ const MyPage = () => {
   // SOS 완료 처리 핸들러 (페이지 이동)
   const handleCompleteRequest = () => {
     // 진행중인 요청만 완료 처리 페이지로 이동
-    if (selectedRequest && selectedRequest.requestStatus === '진행중') {
+    if (selectedRequest && (selectedRequest.requestStatus === 'SOS 중' || selectedRequest.requestStatus === '진행중')) {
       navigate('/sos-complete', { state: { requestData: selectedRequest } });
     }
     closeModal();
@@ -108,29 +109,28 @@ const MyPage = () => {
             <UserAvatar>
               <img src={require('../../assets/images/user1.png')} alt="User Profile" />
             </UserAvatar>
-            <UserName>USER NAME : {userInfo.nickname}</UserName>
+            <UserName>USER NAME : {userStatus?.nickname || '로딩 중...'}</UserName>
           </UserInfo>
           
-          
-                      <UserStats>
-              <StatGroup>
-                <StatLabel>My Level</StatLabel>
-                <StatItem>
-                  <LevelIcon>
-                    <img src={require(`../../assets/images/${currentLevelInfo.image}`)} alt={`Level ${currentLevelInfo.level}`} /> 
-                  </LevelIcon>
-                  <StatValue> : {currentLevelInfo.name}</StatValue>
-                </StatItem>
-              </StatGroup>
-              
-              <StatGroup>
-                <StatLabel>My SOS Point</StatLabel>
-                <StatItem>
-              <PointText>{userInfo.sosPoint} </PointText>
-                  <PointText style={{ color: 'black'}}>SOS 포인트</PointText>
-                </StatItem>
-              </StatGroup>
-            </UserStats>
+          <UserStats>
+            <StatGroup>
+              <StatLabel>My Level</StatLabel>
+              <StatItem>
+                <LevelIcon>
+                  <img src={require(`../../assets/images/${currentLevelInfo.image}`)} alt={`Level ${currentLevelInfo.level}`} /> 
+                </LevelIcon>
+                <StatValue> : {userStatus?.level || currentLevelInfo.name}</StatValue>
+              </StatItem>
+            </StatGroup>
+            
+            <StatGroup>
+              <StatLabel>My SOS Point</StatLabel>
+              <StatItem>
+                <PointText>{userStatus?.point || 0} </PointText>
+                <PointText style={{ color: 'black'}}>SOS 포인트</PointText>
+              </StatItem>
+            </StatGroup>
+          </UserStats>
         </UserCard>
 
         <TabContainer>
@@ -195,7 +195,7 @@ const MyPage = () => {
       <Modal
         isOpen={isModalOpen && selectedRequest}
         onClose={handleCloseModal}
-        userName={selectedRequest?.requesterNickname || userInfo.nickname}
+        userName={selectedRequest?.requesterNickname || userStatus?.nickname || ''}
         userImage="user1.png"
         message={selectedRequest?.title || ''}
         buttonText={selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : '도움완료처리'}
