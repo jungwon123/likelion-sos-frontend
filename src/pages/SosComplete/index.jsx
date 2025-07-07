@@ -55,14 +55,16 @@ const SosComplete = () => {
     try {
       // 실제 API 호출하여 완료 처리
       const completeData = {
+        sosRequestId: requestData.id, // 마이페이지에서 전달받은 게시물 ID
         helperNickname: helperNickname.trim()
       };
 
       console.log('SOS 완료 처리 요청:', completeData);
+      console.log('요청 데이터:', requestData);
       
       const response = await completeSosRequest(completeData);
-      
-      if (response.status === 'success') {
+
+      if (response === 'SOS 완료 처리가 성공적으로 되었습니다.') {
         console.log('SOS 완료 처리 성공:', response);
         
         // SOS 완료 시 포인트 증가 (10점 추가)

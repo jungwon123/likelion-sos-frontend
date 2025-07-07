@@ -8,6 +8,26 @@ export const useMyPageData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // 시간 계산 함수
+  const getRelativeTime = (createdAt) => {
+    const now = new Date();
+    const createdDate = new Date(createdAt);
+    const diffInMs = now.getTime() - createdDate.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 1) {
+      return '방금 전';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes}분 전`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours}시간 전`;
+    } else {
+      return `${diffInDays}일 전`;
+    }
+  };
+
   // 사용자 정보 조회
   const fetchUserStatus = async () => {
     try {
@@ -44,12 +64,12 @@ export const useMyPageData = () => {
       if (response.status === 'success') {
         // API 응답 데이터를 컴포넌트에서 사용하는 형태로 변환
         const transformedData = response.data.map((item, index) => ({
-          id: index + 1,
+          id: item.id, // 실제 API의 id 사용
           title: item.title,
           building: item.building,
           requesterNickname: item.requesterNickname,
-          requestStatus: item.requestStatus,
-          createdAt: '방금 전', // API에서 시간 정보가 없으므로 임시로 설정
+          requestStatus: item.status, // API 응답의 status 필드 사용
+          createdAt: getRelativeTime(item.createdAt), // 실제 생성 시간을 기반으로 상대적 시간 계산
           content: item.content,
           openChatUrl: item.openChatUrl
         }));
@@ -100,12 +120,12 @@ export const useMyPageData = () => {
       if (response.status === 'success') {
         // API 응답 데이터를 컴포넌트에서 사용하는 형태로 변환
         const transformedData = response.data.map((item, index) => ({
-          id: index + 1,
+          id: item.id, // 실제 API의 id 사용
           title: item.title,
           building: item.building,
           requesterNickname: item.requesterNickname,
-          requestStatus: item.requestStatus,
-          createdAt: '방금 전', // API에서 시간 정보가 없으므로 임시로 설정
+          requestStatus: item.status, // API 응답의 status 필드 사용
+          createdAt: getRelativeTime(item.createdAt), // 실제 생성 시간을 기반으로 상대적 시간 계산
           content: item.content,
           openChatUrl: item.openChatUrl
         }));
@@ -154,7 +174,8 @@ export const useMyPageData = () => {
 
   // 상태 텍스트 변환 함수
   const getStatusInfo = (requestStatus) => {
-    if (requestStatus === '완료됨') {
+    console.log('받은 상태값:', requestStatus);
+    if (requestStatus === '완료' || requestStatus === '완료됨') {
       return { text: 'SOS 완료', className: 'completed' };
     }
     return { text: 'SOS 중', className: '' };

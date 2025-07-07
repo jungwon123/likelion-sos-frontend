@@ -84,6 +84,7 @@ export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-bottom: 15px;
 `;
 
 export const LogoText = styled.div`
@@ -141,11 +142,11 @@ export const RequestTitle = styled.div`
 export const RequestMeta = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-size: 10px;
   color: #666;
   margin-bottom: 8px;
-  
+  padding: 10px;
   img {
     width: 15px;
     height: 15px;

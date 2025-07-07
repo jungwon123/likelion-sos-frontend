@@ -26,13 +26,11 @@ apiClient.interceptors.request.use(
     
     // 개발 환경에서 요청 로깅
     if (process.env.NODE_ENV === 'development') {
-      console.log('🚀 API 요청:', config.method?.toUpperCase(), config.url);
     }
     
     return config;
   },
   (error) => {
-    console.error('❌ API 요청 설정 오류:', error);
     return Promise.reject(error);
   }
 );
@@ -42,14 +40,12 @@ apiClient.interceptors.response.use(
   (response) => {
     // 개발 환경에서 응답 로깅
     if (process.env.NODE_ENV === 'development') {
-      console.log('✅ API 응답:', response.config.method?.toUpperCase(), response.config.url, response.status);
     }
     return response;
   },
   async (error) => {
     // 개발 환경에서 에러 로깅
     if (process.env.NODE_ENV === 'development') {
-      console.error('❌ API 에러:', error.config?.method?.toUpperCase(), error.config?.url, error.response?.status);
     }
     
     const originalRequest = error.config;
@@ -83,45 +79,6 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// =============================================================================
-// 테스트 및 헬스체크 함수들
-// =============================================================================
-
-/**
- * Spring 서버 연결 테스트
- * @returns {Promise} 서버 상태 확인 결과
- */
-export const testServerConnection = async () => {
-  try {
-    console.log('🔄 Spring 서버 연결 테스트 시작...');
-    const response = await apiClient.get('/api/health', { timeout: 5000 });
-    console.log('✅ Spring 서버 연결 성공:', response.status);
-    return { success: true, status: response.status, data: response.data };
-  } catch (error) {
-    console.error('❌ Spring 서버 연결 실패:', error.message);
-    if (error.code === 'ECONNREFUSED') {
-      console.error('💡 Spring 서버가 8080 포트에서 실행되고 있지 않습니다.');
-    }
-    return { success: false, error: error.message };
-  }
-};
-
-/**
- * API 테스트 (인증 없이 접근 가능한 엔드포인트)
- * @returns {Promise} API 테스트 결과
- */
-export const testApiEndpoint = async () => {
-  try {
-    console.log('🔄 API 엔드포인트 테스트 시작...');
-    const response = await apiClient.get('/api/test');
-    console.log('✅ API 엔드포인트 연결 성공:', response.status);
-    return { success: true, status: response.status, data: response.data };
-  } catch (error) {
-    console.error('❌ API 엔드포인트 연결 실패:', error.message);
-    return { success: false, error: error.message };
-  }
-};
 
 // =============================================================================
 // SOS 관련 API 함수들

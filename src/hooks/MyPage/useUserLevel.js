@@ -36,4 +36,17 @@ export const useUserLevel = (points) => {
   }, [points]);
 
   return levelInfo;
+};
+
+// 레벨명으로 이미지를 가져오는 함수
+export const getLevelImageByName = (levelName) => {
+  const levelImageMap = {
+    '레전드 학우': 'reward5.png',
+    '학우 지킴이': 'reward4.png',
+    '도움 고수': 'reward3.png',
+    'SOS 입문자': 'reward2.png',
+    '신입 학우': 'reward1.png'
+  };
+  
+  return levelImageMap[levelName] || 'reward1.png'; // 기본값은 reward1.png
 }; 

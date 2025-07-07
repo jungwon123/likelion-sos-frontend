@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { userInfoState } from '../../state/atoms/userAtoms.js';
-import { getAllSosList, getSosListByBuilding, deleteSosRequest, getMyStatus, testServerConnection } from '../../services/api.js';
+import { getAllSosList, getSosListByBuilding, getMyStatus, testServerConnection } from '../../services/api.js';
 import { getBuildingLabel, getBuildingType, BUILDING_OPTIONS } from '../../constants/buildings.js';
+import { getLevelImageByName } from '../../hooks/MyPage/useUserLevel.js';
 import Modal from '../../components/Modal.jsx';
-import AlertModal from '../../components/AlertModal.jsx';
 import {
   MainContainer,
   Header,
@@ -36,6 +36,7 @@ const MainPage = () => {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoState);
   const [requests, setRequests] = useState([]);
+  const [allRequests, setAllRequests] = useState([]); // 전체 요청 목록 저장
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentBuilding, setCurrentBuilding] = useState('전체');
@@ -45,6 +46,26 @@ const MainPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [serverStatus, setServerStatus] = useState('확인 중...');
   const dropdownRef = React.useRef(null);
+
+  // 시간 계산 함수
+  const getRelativeTime = (createdAt) => {
+    const now = new Date();
+    const createdDate = new Date(createdAt);
+    const diffInMs = now.getTime() - createdDate.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 1) {
+      return '방금 전';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes}분 전`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours}시간 전`;
+    } else {
+      return `${diffInDays}일 전`;
+    }
+  };
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -60,26 +81,6 @@ const MainPage = () => {
     };
   }, []);
 
-  // 페이지 로드시 서버 연결 상태 확인
-  useEffect(() => {
-    const checkServerConnection = async () => {
-      try {
-        const result = await testServerConnection();
-        if (result.success) {
-          setServerStatus('서버 연결됨');
-          console.log('🎉 Spring 서버 연결 성공!');
-        } else {
-          setServerStatus('서버 연결 실패');
-          console.error('🚨 Spring 서버 연결 실패:', result.error);
-        }
-      } catch (error) {
-        setServerStatus('서버 연결 실패');
-        console.error('🚨 서버 연결 테스트 중 오류:', error);
-      }
-    };
-
-    checkServerConnection();
-  }, []);
 
   // 페이지 로드시 현재 사용자 정보 가져오기
   useEffect(() => {
@@ -121,10 +122,11 @@ const MainPage = () => {
         const transformedRequests = response.data.map((item, index) => ({
           id: item.id, // 서버에서 제공하는 실제 ID 사용
           userName: item.requesterNickname,
+          userLevel: item.requesterLevel, // 요청자 레벨 추가
           title: item.title,
           description: item.content,
           location: item.building,
-          time: '방금 전', // API에서 시간 정보가 없으므로 임시로 설정
+          time: getRelativeTime(item.createdAt), // 실제 생성 시간을 기반으로 상대적 시간 계산
           category: '도움 요청',
           openChatUrl: item.openChatUrl,
           requestStatus: item.status // 서버에서 status 필드로 오므로 수정
@@ -132,14 +134,23 @@ const MainPage = () => {
         
         console.log('🔄 변환된 요청 데이터:', transformedRequests);
         setRequests(transformedRequests);
+        
+        // 전체 요청을 불러온 경우에만 allRequests 업데이트
+        if (!buildingType) {
+          setAllRequests(transformedRequests);
+        }
+        
+        return transformedRequests; // 성공 시 데이터 반환
       } else {
         setError(response.message || '데이터를 불러오는 중 오류가 발생했습니다.');
         setRequests([]);
+        return [];
       }
     } catch (error) {
       console.error('SOS 리스트 조회 실패:', error);
       setError('네트워크 오류가 발생했습니다. Spring 서버가 실행되고 있는지 확인해주세요.');
       setRequests([]);
+      return [];
     } finally {
       setIsLoading(false);
     }
@@ -150,49 +161,20 @@ const MainPage = () => {
     request.requestStatus === 'SOS 중' || request.requestStatus === '진행중'
   );
 
-  // 게시물이 존재하는 건물만 필터링
+  // 게시물이 존재하는 건물만 필터링 (전체 요청 기준)
   const availableBuildings = React.useMemo(() => {
-    const buildingsWithRequests = new Set(activeRequests.map(request => request.location));
+    const allActiveRequests = allRequests.filter(request => 
+      request.requestStatus === 'SOS 중' || request.requestStatus === '진행중'
+    );
+    const buildingsWithRequests = new Set(allActiveRequests.map(request => request.location));
     return BUILDING_OPTIONS.filter(building => buildingsWithRequests.has(building.label));
-  }, [activeRequests]);
+  }, [allRequests]);
 
   const handleHelpClick = (requestId) => {
     const request = requests.find(r => r.id === requestId);
     if (request) {
-      setSelectedRequest(request);
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleEdit = (requestData) => {
-    navigate('/sosrequest', { state: { editData: requestData } });
-    setIsModalOpen(false);
-  };
-
-  const handleDelete = async (requestId) => {
-    try {
-      const response = await deleteSosRequest(requestId);
-      if (response.status === 'success') {
-        // 모달 닫기
-        setIsModalOpen(false);
-        setSelectedRequest(null);
-        // 목록 새로고침
-        if (currentBuilding === '전체') {
-          fetchSosList();
-        } else {
-          const buildingType = getBuildingType(currentBuilding);
-          fetchSosList(buildingType);
-        }
-      } else {
-        console.error('삭제 실패:', response.message || '삭제에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('삭제 실패:', error);
-      if (error.response?.status === 403) {
-        console.error('본인이 작성한 게시물만 삭제할 수 있습니다.');
-      } else {
-        console.error('삭제 중 오류가 발생했습니다.');
-      }
+      // 바로 SosChat 화면으로 이동
+      navigate('/chat', { state: { request: request } });
     }
   };
 
@@ -213,10 +195,12 @@ const MainPage = () => {
     }
   };
 
-  const handleRefresh = () => {
-    if (currentBuilding === '전체') {
-      fetchSosList();
-    } else {
+  const handleRefresh = async () => {
+    // 새로고침할 때는 항상 전체 요청을 먼저 불러와서 allRequests 업데이트
+    await fetchSosList();
+    
+    // 현재 선택된 건물이 '전체'가 아니면 추가로 필터링
+    if (currentBuilding !== '전체') {
       const buildingType = getBuildingType(currentBuilding);
       fetchSosList(buildingType);
     }
@@ -234,11 +218,8 @@ const MainPage = () => {
 
   const handleModalHelpClick = () => {
     if (selectedRequest) {
-      if (selectedRequest.openChatUrl) {
-        window.open(selectedRequest.openChatUrl, '_blank');
-      } else {
-        navigate('/chat', { state: { request: selectedRequest } });
-      }
+      // 항상 SosChat 화면으로 이동하고 게시물 정보를 전달
+      navigate('/chat', { state: { request: selectedRequest } });
       handleCloseModal();
     }
   };
@@ -274,26 +255,7 @@ const MainPage = () => {
               </DropdownMenu>
             )}
           </LocationDropdown>
-          
-          {/* 서버 상태 표시 */}
-          <div style={{
-            fontSize: '12px',
-            color: serverStatus === '서버 연결됨' ? '#4CAF50' : 
-                   serverStatus === '서버 연결 실패' ? '#f44336' : '#666',
-            marginLeft: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: serverStatus === '서버 연결됨' ? '#4CAF50' : 
-                             serverStatus === '서버 연결 실패' ? '#f44336' : '#666'
-            }}></div>
-            {serverStatus}
-          </div>
+      
         </HeaderLeft>
         <RefreshButton onClick={handleRefresh}>
           <img src={require('../../assets/images/retry.png')} alt="Retry" />
@@ -330,8 +292,8 @@ const MainPage = () => {
                     <UserName>{request.userName}</UserName>
                   </UserProfile>
                   <CategoryIcon>
-                    {request.category}
-                    <img style={{width: '24px', height: '24px'}} src={require('../../assets/images/reward1.png')} alt="User Icon" />
+                    {request.userLevel}
+                    <img style={{width: '24px', height: '24px'}} src={require(`../../assets/images/${getLevelImageByName(request.userLevel)}`)} alt="Level Icon" />
                   </CategoryIcon>
               </UserInfo>
             </CardHeader>
@@ -368,7 +330,7 @@ const MainPage = () => {
         </BottomButton>
       </BottomButtons>
       
-      {/* 향상된 Modal 컴포넌트 */}
+      {/* 간단한 Modal 컴포넌트 */}
       <Modal
         isOpen={isModalOpen && selectedRequest}
         onClose={handleCloseModal}
@@ -378,11 +340,6 @@ const MainPage = () => {
         buttonText="도와줄게요"
         onButtonClick={handleModalHelpClick}
         buttonDisabled={false}
-        buttonVariant="primary"
-        requestData={selectedRequest}
-        currentUser={currentUser}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
       />
 
      

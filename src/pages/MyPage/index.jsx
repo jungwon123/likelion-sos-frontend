@@ -85,8 +85,8 @@ const MyPage = () => {
 
   // SOS 완료 처리 핸들러 (페이지 이동)
   const handleCompleteRequest = () => {
-    // 진행중인 요청만 완료 처리 페이지로 이동
-    if (selectedRequest && (selectedRequest.requestStatus === 'SOS 중' || selectedRequest.requestStatus === '진행중')) {
+    // 모든 요청에 대해 완료 처리 페이지로 이동
+    if (selectedRequest) {
       navigate('/sos-complete', { state: { requestData: selectedRequest } });
     }
     closeModal();
@@ -198,9 +198,9 @@ const MyPage = () => {
         userName={selectedRequest?.requesterNickname || userStatus?.nickname || ''}
         userImage="user1.png"
         message={selectedRequest?.title || ''}
-        buttonText={selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : '도움완료처리'}
+        buttonText={selectedRequest?.requestStatus === '완료' || selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : '도움완료처리'}
         onButtonClick={handleCompleteRequest}
-        buttonDisabled={selectedRequest?.requestStatus === '완료됨'}
+        buttonDisabled={selectedRequest?.requestStatus === '완료' || selectedRequest?.requestStatus === '완료됨'}
         buttonVariant="success"
       />
     </MyPageContainer>

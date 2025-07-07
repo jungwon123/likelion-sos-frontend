@@ -29,15 +29,13 @@ const SosChatPage = () => {
   };
 
   const handleKakaoClick = () => {
-    // 실제 카카오톡 오픈채팅방 링크로 교체해주세요
-    // 예: https://open.kakao.com/o/gXXXXXXXx
-    const kakaoOpenChatLink = 'https://open.kakao.com/o/gXXXXXXXx';
-    
-    // 알림 메시지 (실제 링크 설정 전까지 임시)
-    alert('카카오톡 오픈채팅방 링크를 설정해주세요!\n\n코드에서 handleKakaoClick 함수의 kakaoOpenChatLink 변수를 실제 오픈채팅방 링크로 교체하세요.');
-    
-    // 실제 사용할 때는 아래 주석을 해제하고 위의 alert는 제거하세요
-    // window.open(kakaoOpenChatLink, '_blank');
+    if (request && request.openChatUrl) {
+      // 게시물의 실제 오픈채팅 링크로 이동
+      window.open(request.openChatUrl, '_blank');
+    } else {
+      // 오픈채팅 링크가 없는 경우 알림
+      alert('오픈채팅방 링크가 설정되지 않았습니다.');
+    }
   };
 
   return (
@@ -61,15 +59,19 @@ const SosChatPage = () => {
                 <LogoContainer>
                    <img src={require('../../assets/images/user1.png')} alt="userprofile" />
                 </LogoContainer>
-                <span>{request.title}</span>
+                <div>
+                  <span>{request.title}</span>
+                </div>
               </RequestTitle>
               <RequestMeta>
                 <img src={require('../../assets/images/mappoint.png')} alt="Map Point" />
                 <span> {request.location}</span>
-                <img src={require('../../assets/images/clockpoint.png')} alt="Clock" />
+                <img style={{width: '10px', height: '10px'}} src={require('../../assets/images/clockpoint.png')} alt="Clock" />
                 <span>{request.time}</span>
-                요청자: {request.userName}
+                요청자: {request.userName} 
+
               </RequestMeta>
+            
             </RequestInfo>
           </>
         ) : (
