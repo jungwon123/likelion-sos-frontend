@@ -8,25 +8,7 @@ export const useMyPageData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 시간 계산 함수
-  const getRelativeTime = (createdAt) => {
-    const now = new Date();
-    const createdDate = new Date(createdAt);
-    const diffInMs = now.getTime() - createdDate.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    const diffInDays = Math.floor(diffInHours / 24);
-
-    if (diffInMinutes < 1) {
-      return '방금 전';
-    } else if (diffInMinutes < 60) {
-      return `${diffInMinutes}분 전`;
-    } else if (diffInHours < 24) {
-      return `${diffInHours}시간 전`;
-    } else {
-      return `${diffInDays}일 전`;
-    }
-  };
+  // 시간 계산 함수 제거 - 서버에서 제공하는 elapsedTime 사용
 
   // 사용자 정보 조회
   const fetchUserStatus = async () => {
@@ -69,9 +51,10 @@ export const useMyPageData = () => {
           building: item.building,
           requesterNickname: item.requesterNickname,
           requestStatus: item.status, // API 응답의 status 필드 사용
-          createdAt: getRelativeTime(item.createdAt), // 실제 생성 시간을 기반으로 상대적 시간 계산
+          createdAt: item.elapsedTime, // 서버에서 제공하는 elapsedTime 사용
           content: item.content,
-          openChatUrl: item.openChatUrl
+          openChatUrl: item.openChatUrl,
+          elapsedTime: item.elapsedTime
         }));
         setSosHistory(transformedData);
       } else {
@@ -84,26 +67,7 @@ export const useMyPageData = () => {
       } else {
         setError('네트워크 오류가 발생했습니다.');
       }
-      // 개발 중에는 더미 데이터를 사용
-      const dummySosHistory = [
-        {
-          id: 1,
-          title: "충전기 빌려줄사람 구합니다",
-          building: "학산도서관 1층",
-          requesterNickname: "익명",
-          requestStatus: "SOS 중",
-          createdAt: "50분 전"
-        },
-        {
-          id: 2,
-          title: "노트북 충전기 빌려줄사람 구합니다",
-          building: "8호관 2층",
-          requesterNickname: "익명",
-          requestStatus: "완료됨",
-          createdAt: "2일 전"
-        }
-      ];
-      setSosHistory(dummySosHistory);
+ 
     } finally {
       setLoading(false);
     }
@@ -125,9 +89,10 @@ export const useMyPageData = () => {
           building: item.building,
           requesterNickname: item.requesterNickname,
           requestStatus: item.status, // API 응답의 status 필드 사용
-          createdAt: getRelativeTime(item.createdAt), // 실제 생성 시간을 기반으로 상대적 시간 계산
+          createdAt: item.elapsedTime, // 서버에서 제공하는 elapsedTime 사용
           content: item.content,
-          openChatUrl: item.openChatUrl
+          openChatUrl: item.openChatUrl,
+          elapsedTime: item.elapsedTime
         }));
         setHelpHistory(transformedData);
       } else {
@@ -140,26 +105,7 @@ export const useMyPageData = () => {
       } else {
         setError('네트워크 오류가 발생했습니다.');
       }
-      // 개발 중에는 더미 데이터를 사용
-      const dummyHelpHistory = [
-        {
-          id: 1,
-          title: "학생회관에서 우산 빌려드렸어요",
-          building: "학생회관 1층",
-          requesterNickname: "도움받은학생",
-          requestStatus: "완료됨",
-          createdAt: "1일 전"
-        },
-        {
-          id: 2,
-          title: "도서관에서 노트북 충전기 빌려드렸습니다",
-          building: "중앙도서관 3층",
-          requesterNickname: "익명학생",
-          requestStatus: "완료됨",
-          createdAt: "4일 전"
-        }
-      ];
-      setHelpHistory(dummyHelpHistory);
+
     } finally {
       setLoading(false);
     }

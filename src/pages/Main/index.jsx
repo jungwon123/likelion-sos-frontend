@@ -47,25 +47,7 @@ const MainPage = () => {
   const [serverStatus, setServerStatus] = useState('확인 중...');
   const dropdownRef = React.useRef(null);
 
-  // 시간 계산 함수
-  const getRelativeTime = (createdAt) => {
-    const now = new Date();
-    const createdDate = new Date(createdAt);
-    const diffInMs = now.getTime() - createdDate.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    const diffInDays = Math.floor(diffInHours / 24);
-
-    if (diffInMinutes < 1) {
-      return '방금 전';
-    } else if (diffInMinutes < 60) {
-      return `${diffInMinutes}분 전`;
-    } else if (diffInHours < 24) {
-      return `${diffInHours}시간 전`;
-    } else {
-      return `${diffInDays}일 전`;
-    }
-  };
+  // 시간 계산 함수 제거 - 서버에서 제공하는 elapsedTime 사용
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -126,7 +108,7 @@ const MainPage = () => {
           title: item.title,
           description: item.content,
           location: item.building,
-          time: getRelativeTime(item.createdAt), // 실제 생성 시간을 기반으로 상대적 시간 계산
+          time: item.elapsedTime, // 서버에서 제공하는 elapsedTime 사용
           category: '도움 요청',
           openChatUrl: item.openChatUrl,
           requestStatus: item.status // 서버에서 status 필드로 오므로 수정
