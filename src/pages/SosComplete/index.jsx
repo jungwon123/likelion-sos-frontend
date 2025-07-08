@@ -74,18 +74,18 @@ const SosComplete = () => {
         // 성공 처리 - 모달 열기
         setIsSuccessModalOpen(true);
       } else {
-        setErrorMessage(response.message || '완료 처리에 실패했습니다.');
+        setErrorMessage(response|| '완료 처리에 실패했습니다.');
       }
     } catch (error) {
       console.error('SOS 완료 처리 오류:', error);
-      
+      console.log(error.response);
       // 에러 상태에 따른 메시지 처리
       if (error.response?.status === 401) {
         setErrorMessage('로그인이 필요합니다.');
-      } else if (error.response?.status === 403) {
+      } else if (error.response?.status === 400) {
         setErrorMessage('본인이 작성한 요청만 완료할 수 있습니다.');
-      } else if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message);
+      } else if (error.response?.status === 404) {
+        setErrorMessage('도움을 준 사용자의 아이디가 존재하지 않습니다.');
       } else {
         setErrorMessage('완료 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
