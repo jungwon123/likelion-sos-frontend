@@ -28,7 +28,7 @@ export const sendEmailVerification = async (email) => {
       }
     return {
       success: false,
-      message: error.response?.data || '이미 가입된 이메일입니다.',
+      message: error.response?.data || '서버오류가 발생했습니다.',
     };
   }
 };

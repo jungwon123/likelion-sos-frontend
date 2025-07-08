@@ -57,7 +57,7 @@ const SosChatPage = () => {
             <RequestInfo>
               <RequestTitle>
                 <LogoContainer>
-                   <img src={require('../../assets/images/user1.png')} alt="userprofile" />
+                   <img style={{width: '130px', height: '130px'}} src={require('../../assets/images/user1.png')} alt="userprofile" />
                 </LogoContainer>
                 <div>
                   <span>{request.title}</span>
