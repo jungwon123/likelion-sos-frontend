@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../../components/Modal.jsx';
+import AlertModal from '../../components/AlertModal.jsx';
 import { useUserState } from '../../hooks/state/useUserState.js';
 import { useMyPageData } from '../../hooks/MyPage/useMyPageData.js';
 import { useModal } from '../../hooks/MyPage/useModal.js';
@@ -10,6 +11,7 @@ import {
   Header,
   BackButton,
   HeaderTitle,
+  LogoutButton,
   ContentContainer,
   UserCard,
   UserInfo,
@@ -38,9 +40,11 @@ import {
 const MyPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('sos');
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   
   // Recoil 상태 사용
-  const { userInfo, updateUserInfo } = useUserState();
+  const { userInfo, updateUserInfo, logout } = useUserState();
   const {
     userStatus,
     sosHistory,
@@ -49,6 +53,7 @@ const MyPage = () => {
     error,
     fetchSosHistory,
     fetchHelpHistory,
+    deleteSosPost,
     getStatusInfo
   } = useMyPageData();
   const { isOpen: isModalOpen, modalData: selectedRequest, openModal, closeModal } = useModal();
@@ -58,6 +63,11 @@ const MyPage = () => {
 
   const handleBackClick = () => {
     navigate('/main');
+  };
+
+  const handleLogout = () => {
+    logout(); // Recoil 상태 초기화
+    navigate('/'); // 로그인 페이지로 이동
   };
 
   // 탭 변경 시 해당 데이터 다시 로드
@@ -92,6 +102,27 @@ const MyPage = () => {
     closeModal();
   };
 
+
+
+  // SOS 게시물 삭제 핸들러
+  const handleDeleteSosPost = async (postId) => {
+    const result = await deleteSosPost(postId);
+    if (result.success) {
+      setAlertMessage('게시물이 삭제되었습니다.');
+      setShowAlert(true);
+    } else {
+      setAlertMessage(result.message);
+      setShowAlert(true);
+    }
+    closeModal();
+  };
+
+  // AlertModal 닫기 핸들러
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+    setAlertMessage('');
+  };
+
   const currentHistory = activeTab === 'sos' ? sosHistory : helpHistory;
 
   return (
@@ -101,6 +132,9 @@ const MyPage = () => {
           <img src={require('../../assets/images/back.png')} alt="뒤로가기" />
         </BackButton>
         <HeaderTitle>MY PAGE</HeaderTitle>
+        <LogoutButton onClick={handleLogout}>
+          로그아웃
+        </LogoutButton>
       </Header>
 
       <ContentContainer>
@@ -197,11 +231,23 @@ const MyPage = () => {
         onClose={handleCloseModal}
         userName={selectedRequest?.requesterNickname || userStatus?.nickname || ''}
         userImage="user1.png"
-        message={selectedRequest?.title || ''}
+        message={selectedRequest?.content || selectedRequest?.title || ''}
         buttonText={selectedRequest?.requestStatus === '완료' || selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : '도움완료처리'}
         onButtonClick={handleCompleteRequest}
         buttonDisabled={selectedRequest?.requestStatus === '완료' || selectedRequest?.requestStatus === '완료됨'}
         buttonVariant="success"
+        // 수정/삭제 기능을 위한 props 추가
+        requestData={selectedRequest}
+        currentUser={userStatus}
+        onDelete={activeTab === 'sos' ? handleDeleteSosPost : null}
+        onComplete={activeTab === 'sos' ? handleCompleteRequest : null}
+      />
+
+      {/* AlertModal */}
+      <AlertModal
+        isOpen={showAlert}
+        message={alertMessage}
+        onClose={handleCloseAlert}
       />
     </MyPageContainer>
   );

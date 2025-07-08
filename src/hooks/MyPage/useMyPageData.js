@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMyStatus, getMyPosts, getMyHelped } from '../../services/api.js';
+import { getMyStatus, getMyPosts, getMyHelped, deleteSosRequest } from '../../services/api.js';
 
 export const useMyPageData = () => {
   const [userStatus, setUserStatus] = useState(null);
@@ -73,41 +73,47 @@ export const useMyPageData = () => {
     }
   };
 
-  // 나의 도움 내역 조회
+  // 도움 내역 조회 함수
   const fetchHelpHistory = async () => {
+    if (loading) return;
+    
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      setError('');
-      
-      const response = await getMyHelped();
-      
-      if (response.status === 'success') {
-        // API 응답 데이터를 컴포넌트에서 사용하는 형태로 변환
-        const transformedData = response.data.map((item, index) => ({
-          id: item.id, // 실제 API의 id 사용
-          title: item.title,
-          building: item.building,
-          requesterNickname: item.requesterNickname,
-          requestStatus: item.status, // API 응답의 status 필드 사용
-          createdAt: item.elapsedTime, // 서버에서 제공하는 elapsedTime 사용
-          content: item.content,
-          openChatUrl: item.openChatUrl,
-          elapsedTime: item.elapsedTime
+      const data = await getMyHelped();
+      if (data && Array.isArray(data)) {
+        const processedData = data.map(item => ({
+          ...item,
+          requestStatus: item.status || 'SOS 중',
+          createdAt: item.elapsedTime
         }));
-        setHelpHistory(transformedData);
+        setHelpHistory(processedData);
       } else {
-        setError(response.message || '도움 내역을 불러오는 중 오류가 발생했습니다.');
+        setHelpHistory([]);
       }
-    } catch (error) {
-      console.error('도움 내역 조회 오류:', error);
-      if (error.response?.status === 401) {
-        setError('로그인이 필요합니다.');
-      } else {
+    } catch (err) {
+      if (err?.response?.status !== 401) {
+        console.error('도움 내역 조회 실패:', err);
         setError('네트워크 오류가 발생했습니다.');
       }
-
+ 
     } finally {
       setLoading(false);
+    }
+  };
+
+  // SOS 게시물 삭제 함수
+  const deleteSosPost = async (postId) => {
+    try {
+      await deleteSosRequest(postId);
+      // 삭제 성공 시 목록 새로고침
+      await fetchSosHistory();
+      return { success: true, message: '게시물이 삭제되었습니다.' };
+    } catch (err) {
+      console.error('게시물 삭제 실패:', err);
+      const errorMessage = err?.response?.data?.message || '게시물 삭제에 실패했습니다.';
+      return { success: false, message: errorMessage };
     }
   };
 
@@ -133,9 +139,9 @@ export const useMyPageData = () => {
     helpHistory,
     loading,
     error,
-    fetchUserStatus,
     fetchSosHistory,
     fetchHelpHistory,
+    deleteSosPost,
     getStatusInfo
   };
 }; 

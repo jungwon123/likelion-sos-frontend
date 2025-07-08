@@ -16,7 +16,7 @@ export const Header = styled.header`
   padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 100px;
+  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -48,6 +48,29 @@ export const HeaderTitle = styled.h1`
   margin: 0;
   font-size: 27px;
   font-weight: 500;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+export const LogoutButton = styled.button`
+  background: #FF9500;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  
+  &:hover {
+    background: #E6850C;
+  }
+  
+  &:active {
+    background: #CC7409;
+  }
 `;
 
 export const ContentContainer = styled.div`

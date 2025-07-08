@@ -30,9 +30,9 @@ export const useSosForm = () => {
   useEffect(() => {
     if (editMode && requestData) {
       setFormData({
-        selectedBuilding: requestData.location,
-        title: requestData.title,
-        content: requestData.description,
+        selectedBuilding: requestData.building || '',
+        title: requestData.title || '',
+        content: requestData.content || '',
         chatLink: requestData.openChatUrl || ''
       });
     }
