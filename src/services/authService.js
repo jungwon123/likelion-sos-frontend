@@ -19,6 +19,8 @@ export const sendEmailVerification = async (email) => {
         errorMessage = '이메일 인증이 필요합니다.';
       } else if (error.response?.status === 409) {
         errorMessage = '이미 가입된 이메일입니다.';
+      } else if (error.response?.status === 403) {
+        errorMessage = '서버 오류가 발생했습니다.';
       } else if (error.response?.data) {
         errorMessage = typeof error.response.data === 'string' 
           ? error.response.data 
