@@ -48,7 +48,7 @@ export const SplashContainer = styled(MobileContainer)`
   margin: 0 auto;
   z-index: 9999;
   
-  ${props => props.isExiting && css`
+  ${props => props.$isExiting && css`
     animation: ${slideUp} 0.8s ease-in-out forwards;
   `}
 `;
@@ -69,7 +69,7 @@ export const SosText = styled.h1`
   line-height: 1;
   transition: transform 0.3s ease;
   
-  ${props => props.isExiting && css`
+  ${props => props.$isExiting && css`
     transform: translateY(-20px);
   `}
 `;
@@ -84,7 +84,7 @@ export const CampusText = styled.h1`
   animation: ${fadeIn} 1s ease-out 0.3s both;
   transition: transform 0.3s ease;
   
-  ${props => props.isExiting && css`
+  ${props => props.$isExiting && css`
     transform: translateY(-20px);
   `}
 `;
@@ -98,7 +98,7 @@ export const Subtitle = styled.p`
   animation: ${fadeIn} 1s ease-out 0.6s both;
   transition: opacity 0.3s ease;
   
-  ${props => props.isExiting && css`
+  ${props => props.$isExiting && css`
     opacity: 0.7;
   `}
 `; 

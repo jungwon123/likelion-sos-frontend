@@ -23,12 +23,12 @@ const SplashPage = () => {
   const isExiting = getState('exit');
 
   return (
-    <SplashContainer isExiting={isExiting}>
+    <SplashContainer $isExiting={isExiting}>
       <MobileFlex direction="column" align="center" justify="center">
         <BrandContainer>
-          <SosText isExiting={isExiting}>SOS</SosText>
-          <CampusText isExiting={isExiting}>CAMPUS</CampusText>
-          <Subtitle isExiting={isExiting}>"Campus. Connected."</Subtitle>
+          <SosText $isExiting={isExiting}>SOS</SosText>
+          <CampusText $isExiting={isExiting}>CAMPUS</CampusText>
+          <Subtitle $isExiting={isExiting}>"Campus. Connected."</Subtitle>
         </BrandContainer>
       </MobileFlex>
     </SplashContainer>
