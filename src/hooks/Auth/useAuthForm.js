@@ -50,15 +50,15 @@ export const useAuthForm = (initialData = {}) => {
       if (result.success) {
         // API 응답에서 사용자 데이터 생성
         const userData = {
-          id: Date.now(), // 임시 ID (실제로는 API에서 받아와야 함)
+          id: Date.now(),
           nickname: result.data.nickname,
           email: formData.email,
-          sosPoint: result.data.sospiont, // API에서 받아온 포인트
-          level: result.data.level, // API에서 받아온 레벨
+          sosPoint: result.data.sospiont,
+          level: result.data.level,
         };
         
         const tokenData = {
-          token: 'dummy-jwt-token', // 실제로는 API에서 받아와야 함
+          token: 'dummy-jwt-token',
           refreshToken: 'dummy-refresh-token',
         };
         
@@ -71,7 +71,7 @@ export const useAuthForm = (initialData = {}) => {
           navigate('/main');
         }
       } else {
-        showAlert(result.message); // "이메일 또는 비밀번호가 틀렸습니다."
+        showAlert(result.message);
       }
     } catch (error) {
       showAlert('로그인 중 오류가 발생했습니다.');

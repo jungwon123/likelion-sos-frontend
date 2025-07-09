@@ -73,15 +73,6 @@ const ModalUserName = styled.div`
   flex: 1;
 `;
 
-const StatusBadge = styled.div`
-  background: rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: bold;
-`;
-
 const ModalTitle = styled.div`
   font-size: 16px;
   font-weight: 600;
@@ -325,7 +316,12 @@ const Modal = ({
 
   // 작성자 여부 확인
   const isAuthor = currentUser?.nickname === userName;
-
+  console.log('=== Modal 작성자 확인 ===');
+  console.log('currentUser:', currentUser);
+  console.log('currentUser?.nickname:', currentUser?.nickname);
+  console.log('userName:', userName);
+  console.log('isAuthor:', isAuthor);
+  console.log('========================');
   // 삭제 확인 모달
   const handleDeleteConfirm = () => {
     setShowDeleteConfirm(true);

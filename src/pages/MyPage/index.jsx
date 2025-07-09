@@ -44,9 +44,10 @@ const MyPage = () => {
   const [alertMessage, setAlertMessage] = useState('');
   
   // Recoil 상태 사용
-  const { userInfo, updateUserInfo, logout } = useUserState();
+  const { userInfo, logout } = useUserState();
   const {
     userStatus,
+    userNickname,
     sosHistory,
     helpHistory,
     loading,
@@ -95,14 +96,22 @@ const MyPage = () => {
 
   // SOS 완료 처리 핸들러 (페이지 이동)
   const handleCompleteRequest = () => {
-    // 모든 요청에 대해 완료 처리 페이지로 이동
     if (selectedRequest) {
       navigate('/sos-complete', { state: { requestData: selectedRequest } });
     }
     closeModal();
   };
 
-
+  // SOS 게시물 수정 핸들러
+  const handleEditSosPost = (requestData) => {
+    navigate('/sos-request', { 
+      state: { 
+        editMode: true, 
+        requestData: requestData
+      } 
+    });
+    closeModal();
+  };
 
   // SOS 게시물 삭제 핸들러
   const handleDeleteSosPost = async (postId) => {
@@ -143,7 +152,7 @@ const MyPage = () => {
             <UserAvatar>
               <img src={require('../../assets/images/user1.png')} alt="User Profile" />
             </UserAvatar>
-            <UserName>USER NAME : {userStatus?.nickname || '로딩 중...'}</UserName>
+            <UserName>USER NAME : {userInfo?.nickname || '로딩 중...'}</UserName>
           </UserInfo>
           
           <UserStats>
@@ -229,7 +238,7 @@ const MyPage = () => {
       <Modal
         isOpen={isModalOpen && selectedRequest}
         onClose={handleCloseModal}
-        userName={selectedRequest?.requesterNickname || userStatus?.nickname || ''}
+        userName={selectedRequest?.requesterNickname || userInfo?.nickname || ''}
         userImage="user1.png"
         message={selectedRequest?.content || selectedRequest?.title || ''}
         buttonText={selectedRequest?.requestStatus === '완료' || selectedRequest?.requestStatus === '완료됨' ? '이미 완료된 요청입니다' : '도움완료처리'}
@@ -238,7 +247,7 @@ const MyPage = () => {
         buttonVariant="success"
         // 수정/삭제 기능을 위한 props 추가
         requestData={selectedRequest}
-        currentUser={userStatus}
+        currentUser={userInfo} // userStatus 대신 userInfo 사용
         onDelete={activeTab === 'sos' ? handleDeleteSosPost : null}
         onComplete={activeTab === 'sos' ? handleCompleteRequest : null}
       />

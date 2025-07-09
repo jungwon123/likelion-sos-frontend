@@ -79,8 +79,6 @@ export const useSosForm = () => {
         openChatUrl: formData.chatLink
       };
       
-      console.log('SOS 요청 데이터:', sosData);
-      
       let response;
       if (editMode && requestData) {
         // 수정 모드: 업데이트 API 호출

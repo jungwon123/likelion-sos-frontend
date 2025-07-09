@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { userInfoState } from '../../state/atoms/userAtoms.js';
-import { getAllSosList, getSosListByBuilding, getMyStatus, testServerConnection } from '../../services/api.js';
-import { getBuildingLabel, getBuildingType, BUILDING_OPTIONS } from '../../constants/buildings.js';
+import { getAllSosList, getSosListByBuilding, getMyStatus } from '../../services/api.js';
+import { getBuildingType, BUILDING_OPTIONS } from '../../constants/buildings.js';
 import { getLevelImageByName } from '../../hooks/MyPage/useUserLevel.js';
 import Modal from '../../components/Modal.jsx';
 import {
@@ -44,10 +44,7 @@ const MainPage = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [serverStatus, setServerStatus] = useState('확인 중...');
   const dropdownRef = React.useRef(null);
-
-  // 시간 계산 함수 제거 - 서버에서 제공하는 elapsedTime 사용
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -74,7 +71,8 @@ const MainPage = () => {
         }
       } catch (error) {
         console.error('사용자 정보 조회 실패:', error);
-        // 에러가 발생해도 기본 기능은 동작하도록 함
+        // 필요시 기본 사용자 정보 설정
+        setCurrentUser(null);
       }
     };
 
@@ -114,7 +112,6 @@ const MainPage = () => {
           requestStatus: item.status // 서버에서 status 필드로 오므로 수정
         }));
         
-        console.log('🔄 변환된 요청 데이터:', transformedRequests);
         setRequests(transformedRequests);
         
         // 전체 요청을 불러온 경우에만 allRequests 업데이트
